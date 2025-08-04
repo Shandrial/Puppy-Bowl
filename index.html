@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta 
-        name="viewport" 
-        content="width=device-width, initial-scale=1.0" 
-        />
-    <link 
-        rel="stylesheet" 
-        href="index.css" 
-        />
-    <script 
-        defer src="index.js">
-    </script>
-    <title>Puppy Bowl Redux</title>
-</head>
-<body>
-    <div id="app">
-        <!--players-->
-        <sec class="rooster"></sec>
-    </div>
-</body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Puppy Bowl</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Puppy Bowl Roster</h1>
+    </header>
+    <main>
+      <div id="puppy-list-container"></div>
+      <div id="selected-puppy-container"></div>
+      <div id="puppy-form-container">
+        <h2>Add a New Puppy</h2>
+        <form id="puppy-form">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+
+          <label for="breed">Breed:</label>
+          <input type="text" id="breed" name="breed" required />
+
+          <label for="status">Status</label>
+          <select name="status" id="status">
+            <option value="bench">Bench</option>
+            <option value="field">Field</option>
+          </select>
+
+          <label for="imageURL">Image URL</label>
+          <input type="text" name="imageURL" id="imageURL" />
+
+          <button type="submit" id="addPuppyBtn">Add Puppy</button>
+        </form>
+      </div>
+    </main>
+  </body>
 </html>
