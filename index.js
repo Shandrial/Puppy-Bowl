@@ -1,225 +1,134 @@
-// cohort code
-const COHORT = "2503-FTB-ET-WEB-AM";
-// API URL
-const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${COHORT}/players`;
+const API_URL = "https://fsa-puppy-bowl.herokuapp.com/api/2503-PUPPIES/players";
 
-// place holder for players
-const state = {
-  puppies: [],
-  currentPuppy: {},
-};
-
-const $selectPuppyContainer = document.getElementById(
-  "selected-puppy-container"
-);
-
-const selectPuppy = async () => {
-  // get the event from the hash
-  getEventFromHash();
-
-  // clear the container
-  $selectPuppyContainer.innerHTML = "";
-
-  // if there is no current puppy, return
-  if (!state.currentPuppy) {
-    $selectPuppyContainer.innerHTML = "<p>No puppy selected</p>";
-  }
-  await getPuppyData(state.currentPuppy);
-  // get the puppy data
-};
-
-const getEventFromHash = () => {
-  const id = window.location.hash.slice(1);
-
-  state.currentPuppy = state.puppies.find((puppy) => {
-    return puppy.id === +id;
-  });
-};
-
-window.addEventListener("hashchange", selectPuppy);
-
-//fetch all players from api
-const fetchAllPuppies = async () => {
-  try {
-    const response = await fetch(API_URL);
-    const { data } = await response.json();
-    state.puppies = data.players;
-    renderPuppies();
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-//render puppies
-const renderPuppies = () => {
-  const puppiesContainer = document.getElementById("puppy-list-container");
-  const puppyList = state.puppies;
-
-  //checks if there are puppies to display
-  if (puppyList.length === 0 || !puppyList) {
-    puppiesContainer.innerHTML = "<p>No puppies available</p>";
-    return;
-  }
-
-  puppyList.forEach((puppy) => {
-    const puppyListCard = document.createElement("div");
-    puppyListCard.classList.add("puppy-list-card");
-    puppyListCard.innerHTML = `
-      <a href = #${puppy.id}>${puppy.name}</a>`;
-
-    puppiesContainer.appendChild(puppyListCard);
-  });
-};
-
-const getPuppyData = async (puppy) => {
-  try {
-    const response = await fetch(`${API_URL}/${puppy.id}`);
-    const { data } = await response.json();
-
-    //resets current puppy data
-    state.currentPuppy = {};
-
-    const info = {
-      id: data.player.id,
-      name: data.player.name,
-      breed: data.player.breed,
-      age: data.player.age,
-      imageUrl: data.player.imageUrl,
-      description: data.player.description,
-    };
-    state.currentPuppy = info;
-
-    makePuppyCard();
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const makePuppyCard = () => {
-  // create each element for the cards
-
-  const { name, breed, imageUrl } = state.currentPuppy;
-  const puppyCard = document.createElement("div");
-  const nameh3 = document.createElement("h2");
-  const breedP = document.createElement("p");
-  const stat = document.createElement("p");
-  const image = document.createElement("img");
-  const btn = document.createElement("button");
-  console.log(state.currentPuppy);
-
-  //add id to each element
-  puppyCard.id = "puppyCard";
-  nameh3.id = "name";
-  breedP.id = "breed";
-  stat.id = "status";
-  image.id = "image";
-  btn.id = "deleteButton";
-
-  //add information to each element
-  nameh3.textContent = name;
-  breedP.textContent = `Breed: ${breed}`;
-  image.src = imageUrl;
-  image.alt = `${name} the ${breed}`;
-  btn.textContent = "Delete";
-
-  //add all info to and element array
-  const elements = [nameh3, breedP, stat, image, btn];
-
-  elements.forEach((element) => {
-    puppyCard.appendChild(element);
-  });
-
-  // append the puppy card to the container
-  $selectPuppyContainer.appendChild(puppyCard);
-  return $selectPuppyContainer;
-};
-
-// create event listender to handle the delete button
-window.addEventListener("click", async (event) => {
-  // delete puppy
-  if (event.target.id === "deleteButton") {
-    const puppyId = state.currentPuppy.id;
+// Fetch and render puppies
+async function fetchPuppies() {
     try {
-      const response = await fetch(`${API_URL}/${puppyId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to delete the puppy");
-      }
-      // remove the puppy from the state
-      state.puppies = state.puppies.filter((puppy) => puppy.id !== puppyId);
-      // reset current puppy
-      state.currentPuppy = {};
-      //clear the puppy list container
-      const puppiesContainer = document.getElementById("puppy-list-container");
-      puppiesContainer.innerHTML = "";
-      // re-render the puppies
-      renderPuppies();
-      // clear the selected puppy container
-      $selectPuppyContainer.innerHTML = "<p>Puppy deleted successfully</p>";
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (!data?.data?.players) throw new Error("Invalid API response");
+
+        renderPuppies(data.data.players);
     } catch (error) {
-      console.error(error);
+        console.error("Error fetching puppies:", error);
     }
-  }
+}
+
+// Render puppy cards including player details
+function renderPuppies(players) {
+    const container = document.getElementById("puppy-container");
+    container.innerHTML = "";
+
+    players.forEach(player => {
+        if (!player?.id || !player?.name || !player?.imageUrl || !player?.breed || !player?.status) return;
+
+        const card = document.createElement("div");
+        card.className = "puppy-card";
+
+        const img = document.createElement("img");
+        img.src = player.imageUrl;
+        img.alt = player.name;
+        card.appendChild(img);
+
+        const name = document.createElement("h3");
+        name.textContent = player.name;
+        card.appendChild(name);
+
+        const breed = document.createElement("p");
+        breed.textContent = `Breed: ${player.breed}`;
+        card.appendChild(breed);
+
+        const status = document.createElement("p");
+        status.textContent = `Status: ${player.status}`;
+        card.appendChild(status);
+
+        // More Info Button (Triggers Modal)
+        const detailsBtn = document.createElement("button");
+        detailsBtn.textContent = "More Info";
+        detailsBtn.addEventListener("click", () => showPuppyDetails(player.id));
+        card.appendChild(detailsBtn);
+
+        // Remove Button
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => removePuppy(player.id));
+        card.appendChild(removeBtn);
+
+        container.appendChild(card);
+    });
+}
+
+// Fetch and display puppy details in a **modal**
+async function showPuppyDetails(id) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`);
+        const data = await response.json();
+
+        console.log("Full API Response:", data); // This will confirm the nesting
+
+        if (!data || !data.data || !data.data.player) {
+            throw new Error("Unexpected API response structure");
+        }
+
+        const player = data.data.player;
+
+        document.getElementById("modal-name").textContent = player.name;
+        document.getElementById("modal-breed").textContent = player.breed;
+        document.getElementById("modal-status").textContent = player.status;
+        document.getElementById("modal-team").textContent = player.team?.name ?? "No team assigned";
+        document.getElementById("modal-created").textContent = new Date(player.createdAt).toLocaleString();
+        document.getElementById("modal-updated").textContent = new Date(player.updatedAt).toLocaleString();
+        document.getElementById("modal-image").src = player.imageUrl;
+        document.getElementById("modal-image").alt = player.name;
+
+        document.getElementById("puppy-modal").style.display = "block";
+    } catch (error) {
+        console.error("Error fetching puppy details:", error);
+        alert("Failed to load puppy details. Check the console for more info.");
+    }
+}
+
+
+// Add a new puppy via API
+async function addPuppy(event) {
+    event.preventDefault();
+    const name = document.getElementById("name").value;
+    const breed = document.getElementById("breed").value;
+    const imageUrl = document.getElementById("imageUrl").value;
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, breed, imageUrl })
+        });
+
+        if (!response.ok) throw new Error("Failed to add puppy");
+
+        fetchPuppies();
+    } catch (error) {
+        console.error("Error adding puppy:", error);
+    }
+}
+
+// Remove a puppy via API
+async function removePuppy(id) {
+    try {
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        fetchPuppies();
+    } catch (error) {
+        console.error("Error removing puppy:", error);
+    }
+}
+
+// Close modal when clicking the "X"
+document.querySelector(".close").addEventListener("click", () => {
+    document.getElementById("puppy-modal").style.display = "none";
 });
 
-//create function to handle adding a new puppy
-const addNewPuppy = async (name, breed, status, imageUrl) => {
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        breed,
-        status,
-        imageUrl,
-      }),
-    });
+// Event listeners for form submission and refresh
+document.getElementById("puppy-form").addEventListener("submit", addPuppy);
+document.getElementById("refresh").addEventListener("click", fetchPuppies);
 
-    if (!response.ok) {
-      throw new Error("Failed to add new puppy");
-    }
-
-    const { data } = await response.json();
-    state.puppies.push(data.player);
-    renderPuppies();
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// event listener for the puppy form submission
-const newPuppyFormEvent = () => {
-  const form = document.getElementById("puppy-form");
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    console.log(
-      form.name.value,
-      form.breed.value,
-      form.status.value,
-      form.imageUrl.value
-    );
-
-    // add the new puppy
-    await addNewPuppy(
-      form.name.value,
-      form.breed.value,
-      form.status.value,
-      form.imageUrl.value
-    );
-
-    // reset the form
-    form.reset();
-  });
-};
-//initialize the app
-const init = async () => {
-  await fetchAllPuppies();
-  selectPuppy();
-  newPuppyFormEvent();
-};
-
-init();
+// Initial fetch
+fetchPuppies();

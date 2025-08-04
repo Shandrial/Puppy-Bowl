@@ -1,40 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puppy Bowl</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
-  </head>
-  <body>
-    <header>
-      <h1>Puppy Bowl Roster</h1>
-    </header>
-    <main>
-      <div id="puppy-list-container"></div>
-      <div id="selected-puppy-container"></div>
-      <div id="puppy-form-container">
-        <h2>Add a New Puppy</h2>
-        <form id="puppy-form">
-          <label for="name">Name:</label>
-          <input type="text" id="name" name="name" required />
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <h1>Puppy Bowl Roster</h1>
+    <button id="refresh">Refresh Roster</button>
+    <div id="puppy-container"></div>
 
-          <label for="breed">Breed:</label>
-          <input type="text" id="breed" name="breed" required />
+    <h2>Add a New Puppy</h2>
+    <form id="puppy-form">
+        <input type="text" id="name" placeholder="Puppy Name" required>
+        <input type="text" id="breed" placeholder="Breed" required>
+        <input type="url" id="imageUrl" placeholder="Image URL" required>
+        <button type="submit">Add Puppy</button>
+    </form>
 
-          <label for="status">Status</label>
-          <select name="status" id="status">
-            <option value="bench">Bench</option>
-            <option value="field">Field</option>
-          </select>
+    <!-- Puppy Details Modal -->
+    <div id="puppy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-name"></h2>
+            <img id="modal-image" src="" alt="Puppy Image">
+            <p><strong>Breed:</strong> <span id="modal-breed"></span></p>
+            <p><strong>Status:</strong> <span id="modal-status"></span></p>
+            <p><strong>Team:</strong> <span id="modal-team"></span></p>
+            <p><strong>Created At:</strong> <span id="modal-created"></span></p>
+            <p><strong>Updated At:</strong> <span id="modal-updated"></span></p>
+        </div>
+    </div>
 
-          <label for="imageURL">Image URL</label>
-          <input type="text" name="imageURL" id="imageURL" />
-
-          <button type="submit" id="addPuppyBtn">Add Puppy</button>
-        </form>
-      </div>
-    </main>
-  </body>
+    <script src="index.js"></script>
+</body>
 </html>
